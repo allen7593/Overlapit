@@ -1,0 +1,33 @@
+QPushButton{
+	border-radius: 2px;
+	border: 1px solid #000000;
+	background:transparent;
+	color:#000000;
+}
+
+QPushButton:hover {
+	color:#FFFFFF;
+	background: #9C9C9C;
+}
+
+QLabel{
+	color:black;
+	background:transparent;
+}
+
+QMainWindow{
+	border-radius: 2px;
+	border: 5px solid #000000;
+	background-color: rgb(255,255,255);
+}
+
+QLineEdit{
+	border-radius: 2px;
+	border: 1px solid #000000;
+}
+
+QDialog{
+	border-radius: 2px;
+	border: 5px solid #000000;
+	background-color: rgb(255,255,255);
+}
