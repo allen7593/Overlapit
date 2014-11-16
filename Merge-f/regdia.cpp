@@ -156,6 +156,7 @@ void regDia::GenerateQR()
         saveTheAccinfo();
         d=new shareDis(this,seed);
         this->hide();
+        QMessageBox::warning(this, tr("Warning"),tr("Please keep next page in secret!!!"),QMessageBox::Ok);
         //d->setSeed(seed);
         d->show();
     }
@@ -197,6 +198,7 @@ void regDia::saveTheAccinfo()
 {
     QFile file("asset1");
     QFile file1("assetmc");
+    QFile file2("assetT");
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         // error processing here
         QMessageBox::warning(this, tr("Warning"),tr("File writting error"),QMessageBox::Ok);
@@ -209,9 +211,21 @@ void regDia::saveTheAccinfo()
         return;
 
     }
+    if (!file2.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        // error processing here
+        QMessageBox::warning(this, tr("Warning"),tr("File writting error"),QMessageBox::Ok);
+        return;
+
+    }
 
     QTextStream ts(&file);
     QTextStream ts1(&file1);
+    QTextStream ts2(&file2);
+
+    ts2<<time(NULL);
+    file2.close();
+
+
     QByteArray bb;
     bb.append(usrNameEdit->text());
     bb.append(passwordEdit->text());

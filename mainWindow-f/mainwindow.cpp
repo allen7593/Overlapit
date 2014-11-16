@@ -10,19 +10,32 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QTextStream>
+#include <unistd.h>
+#include <QApplication>
+#include <QDesktopWidget>
+
 
 
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent,Qt::FramelessWindowHint)
 {
+    construct();
+
+}
+
+MainWindow::~MainWindow()
+{
+}
+
+void MainWindow::construct()
+{
+    refreshVel=0;
     count=5;
     p=new picGen;
     p->mainPic();
-    //srand(100);
     pixLabel=new QLabel;
     QImage* image;
-    //p->loadShare1();
     image=p->getShare2();
     QSize s(1000,500);
 
@@ -30,10 +43,23 @@ MainWindow::MainWindow(QWidget *parent) :
     QWidget *centerWindow=new QWidget;
     this->setCentralWidget(centerWindow);
 
+    time = QTime(0,2,0);
+    QTimer *timer=new QTimer(this);
+    timer->setInterval(1000);
+    timeCount=1000;
+    QFont font;
+    font.setPixelSize(20);
+
+
+
+    timeLabel=new QLabel();
+    timeWarning=new QLabel();
+    timeLabel->setFont(font);
+    timeWarning->setFont(font);
+    timeWarning->setStyleSheet("color:red");
+
     varifyLabe=new QLabel(tr("Please enter the verification number."));
     varifyEdit=new QLineEdit;
-
-    //varifyLabe->setBuddy(varifyEdit);
 
     varifyButton=new QPushButton(tr("&Verify"));
     closeButton=new QPushButton(tr("Close"));
@@ -51,12 +77,16 @@ MainWindow::MainWindow(QWidget *parent) :
     mainLayout->addWidget(varifyEdit);
     mainLayout->addLayout(botLayout);
     mainLayout->addWidget(logoutBut);
+    mainLayout->addWidget(timeLabel);
+    mainLayout->addWidget(timeWarning);
     mainLayout->addStretch();
 
     connect(varifyEdit,SIGNAL(textChanged(const QString&)),this,SLOT(enableButton(const QString&)));
     connect(varifyButton,SIGNAL(clicked()),this,SLOT(checkForCode()));
     connect(closeButton,SIGNAL(clicked()),this,SLOT(close()));
     connect(logoutBut,SIGNAL(clicked()),this,SLOT(logout()));
+    connect(timer,SIGNAL(timeout()),this,SLOT(countDown()));
+    timer->start();
 
     QGroupBox *groupBox = new QGroupBox(tr("Login"));
     groupBox->setLayout(mainLayout);
@@ -75,8 +105,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     LogoLaybel->setPixmap(QPixmap::fromImage(logoImg->scaled(size,Qt::KeepAspectRatio,Qt::FastTransformation)));
 
-    QFont font;
-    font.setPixelSize(50);
+
 
     LogoLaybel->setFont(font);
     LogoLaybel->setMinimumHeight(30);
@@ -90,7 +119,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     hPlaceHolder->addWidget(pixLabel);
     hPlaceHolder->addLayout(rightLayout);
-    //hPlaceHolder->addWidget(groupBox);
 
     placeHolder->addStretch();
     placeHolder->addLayout(hPlaceHolder);
@@ -116,13 +144,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 }
 
-MainWindow::~MainWindow()
-{
-}
-
 void MainWindow::enableButton(const QString& text)
 {
-    //varifyButton->setEnabled(!text.isEmpty());
     varifyButton->setDisabled(text.isEmpty());
 }
 
@@ -138,7 +161,10 @@ void MainWindow::checkForCode()
 
     if(count>0)
         if(varCode==hashedVal)
+        {
+            refreshVel=2;
             close();
+        }
         else
         {
             count--;
@@ -159,6 +185,42 @@ void MainWindow::checkForCode()
 }
 
 
+void MainWindow::countDown()
+{
+
+    QString time_Display;
+
+
+    time_Display=time.toString("hh:mm:ss");
+    timeLabel->setText(time_Display);
+    if(time.minute()==1 && time.second()==0)
+        timeWarning->setText(tr("You have 1 minute left"));
+    else if(time.minute()==0 && time.second()==30)
+        timeWarning->setText(tr("You have 30 seconds left"));
+    else if(time.minute()==0 && time.second()==0)
+    {
+        QMessageBox::StandardButton retvel;
+        retvel=QMessageBox::warning(this,tr("Time out"),tr("You have no time left press Ok to refresh the page!"),QMessageBox::Ok);
+        if(retvel==QMessageBox::Ok)
+        {
+            //do something
+            refreshVel=1;
+            this->close();
+            QFile file("stylesheet.qss");
+            file.open(QFile::ReadOnly);
+            QTextStream filetext(&file);
+            QString stylesheet=filetext.readAll();
+            MainWindow *newWindow;
+            newWindow=new MainWindow;
+            newWindow->setStyleSheet(stylesheet);
+            setCenterOfApplication(newWindow);
+            newWindow->show();
+        }
+    }
+    time=time.addSecs(-1);
+}
+
+
 void MainWindow::logout()
 {
     QMessageBox::StandardButton reply;
@@ -167,4 +229,18 @@ void MainWindow::logout()
         system("kill -9 -1");
     else
         return;
+}
+
+
+void setCenterOfApplication(QMainWindow* widget)
+{
+    QSize size = widget->sizeHint();
+    QDesktopWidget* desktop = QApplication::desktop();
+    int width = desktop->width();
+    int height = desktop->height();
+    int mw = size.width();
+    int mh = size.height();
+    int centerW = (width/2) - (mw/2);
+    int centerH = (height/2) - (mh/2);
+    widget->move(centerW, centerH);
 }

@@ -49,12 +49,12 @@ picGen::picGen()
         secretStr=generateRanStr();
         QPainter painter;
         QFont font;
-        font.setPixelSize(15);
+        font.setPixelSize(20);
         //font.setBold(true);
         font.setStyleHint(QFont::TypeWriter);
         painter.begin(secret);
         painter.setFont(font);
-        painter.drawText(0,15,secretStr.c_str());
+        painter.drawText(0,25,secretStr.c_str());
         painter.end();
 
 }
@@ -84,9 +84,69 @@ QImage* picGen::getShare2()
 
 void picGen::loadShare1()
 {
-    std::string absPath=homePath+"/Overlapit/s1.png";
 
-    s1->load(absPath.c_str());
+    std::string absPath=homePath+"/Overlapit/asset1";
+    std::string absPath1=homePath+"/Overlapit/assetT";
+
+//    s1->load(absPath.c_str());
+    QFile file(absPath.c_str());
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Truncate)) {
+        // error processing here
+        //QMessageBox::warning(this, tr("Warning"),tr("File writting error"),QMessageBox::Ok);
+        return;
+
+    }
+
+    QTextStream ts(&file);
+    QString saved;
+    int seed;
+    saved=ts.readAll();
+
+
+
+    QFile file2(absPath1.c_str());
+    if (!file2.open(QIODevice::ReadOnly | QIODevice::Truncate)) {
+        // error processing here
+        //QMessageBox::warning(this, tr("Warning"),tr("File writting error"),QMessageBox::Ok);
+        return;
+
+    }
+
+    QTextStream ts1(&file2);
+    QString regTime;
+    regTime=ts1.readAll();
+    std::stringstream ossT(std::stringstream::out|std::stringstream::in);
+    ossT<<regTime.toStdString();
+    time_t rTime;
+    ossT>>rTime;
+    time_t t= time(NULL);
+    int timeD=(t-rTime)/120;
+
+    std::stringstream ss;
+    ss<<std::hex<<saved.toStdString();
+    ss>>seed;
+    seed%=100000;
+
+    std::stringstream ssC;
+    ssC<<seed;
+
+    std::string convert;
+    convert=ssC.str();
+
+    std::ostringstream ossC1;
+
+    ossC1<<timeD;
+    convert+=ossC1.str();
+
+    std::stringstream ossC2;
+    ossC2<<convert;
+    ossC2>>seed;
+
+    std::cout<<seed<<endl;
+    setKey(seed);
+    share1Gen();
+
+
 }
 
 void picGen::mainPic()
@@ -107,7 +167,7 @@ void picGen::excu()
     extendShare();
 
 
-    saveAll();
+    //saveAll();
 }
 
 void picGen::setKey(int num)
@@ -123,7 +183,6 @@ void picGen::share1Gen()
         for(int j=0;j<height*2;j+=2)
         {
             caseNum=abs(g->rand())%6;
-            //std::cout<<caseNum<<std::endl;
             switch(caseNum)
             {
                 case 0:
@@ -285,49 +344,61 @@ void picGen::saveAll()
     *s2Ex=s2Ex->scaled(s,Qt::KeepAspectRatio,Qt::FastTransformation);
     s1Ex->save("s1Ex.png");
     s2Ex->save("s2Ex.png");
-    //s2Ex->save("/home/allen7593/sharet.png");
     secret->save("secret.png");
 }
 
 
 void picGen::alignment()
 {
-    int size=9;
+    int size=5;
     picAli = new QImage(width*6+size*2,height*6+size*2,QImage::Format_RGBA8888);
-    QRgb green,white;
-    green = qRgba(0,255,0,255);
-    white = qRgba(255,255,255,0);
+
     //set to transparent
     for(int i=0;i<width*6+size*2;i++)
         for(int j=0;j<height*6+size*2;j++)
             picAli->setPixel(i,j,white);
     for(int i=size-1;i<width*6+size-1;i++)
         for(int j=size-1;j<height*6+size-1;j++)
-            picAli->setPixel(i,j,s2Ex->pixel(i-(size-1),j-(size-1)));
+        {
+            if(i-(size-1)==0 && j-(size-1)==0)
+            {
+                picAli->setPixel(i,j,black);
+            }
+            else
+                picAli->setPixel(i,j,s2Ex->pixel(i-(size-1),j-(size-1)));
+        }
 
-
-    //top left corner
-    for(int i=0;i<size*2;i++)
-        for(int j=0;j<size*2;j++)
-            picAli->setPixel(i,j,green);
-
-    //top Right corner
-    for(int i=width*6-1;i<width*6+size*2-1;i++)
-        for(int j=0;j<size*2;j++)
-                picAli->setPixel(i,j,green);
-
-    //bot left corner
-    for(int i=0;i<size*2;i++)
-        for(int j=height*6-1;j<height*6+size*2-1;j++)
-            picAli->setPixel(i,j,green);
-
-    //bot right corner
-    for(int i=width*6-1;i<width*6+size*2-1;i++)
-        for(int j=height*6-1;j<height*6+size*2-1;j++)
-            picAli->setPixel(i,j,green);
 
     QSize s(1000,500);
     *picAli=picAli->scaled(s,Qt::KeepAspectRatio,Qt::FastTransformation);
+    bool first=false;
+    int radius;
+    for(int i=0;i<picAli->width();i++)
+    {
+        for(int j=0;j<picAli->height();j++)
+        {
+            if(picAli->pixel(i,j)==black)
+            {
+                first =true;
+                radius=i;
+                break;
+            }
+        }
+        if(first==true)
+            break;
+    }
 
-    picAli->save("picAli.png");
+    int muinus=size/2+1;
+    QPainter painter;
+    painter.begin(picAli);
+    painter.setPen(QPen(Qt::white,0,Qt::SolidLine));
+    painter.setBrush(QBrush(Qt::green,Qt::SolidPattern));
+    painter.drawEllipse(0,0,radius*2,radius*2);
+    painter.drawEllipse(picAli->width()-radius*2-muinus,0,radius*2,radius*2);
+    painter.drawEllipse(0,picAli->height()-radius*2-muinus,radius*2,radius*2);
+    painter.drawEllipse(picAli->width()-radius*2-muinus,picAli->height()-radius*2-muinus,radius*2,radius*2);
+    painter.end();
+
+    //picAli->save("picAli.png");
 }
+

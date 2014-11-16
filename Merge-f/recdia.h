@@ -10,6 +10,7 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include <QFile>
+#include <unistd.h>
 
 class recDia : public QDialog
 {

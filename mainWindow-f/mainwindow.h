@@ -6,7 +6,14 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <sstream>
+#include <QTimer>
+#include <QDateTime>
+#include <QPalette>
+
 #include "picgen.h"
+
+
+void setCenterOfApplication(QMainWindow* widget);
 
 class MainWindow : public QMainWindow
 {
@@ -16,12 +23,13 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-
 public slots:
     void enableButton(const QString&);
     void checkForCode();
     void logout();
+    void countDown();
 private:
+    void construct();
     QLabel *varifyLabe;
     QLabel *pixLabel;
     QLineEdit *varifyEdit;
@@ -29,8 +37,13 @@ private:
     QPushButton *closeButton;
 
     QPushButton* logoutBut;
+    QLabel* timeLabel;
+    QLabel* timeWarning;
+    QTime time;
 
     int count;
+    int timeCount;
+    int refreshVel;
 
     picGen* p;
 };

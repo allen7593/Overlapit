@@ -10,6 +10,7 @@
 #include <fstream>
 #include <QMessageBox>
 #include <iostream>
+#include <unistd.h>
 
 class LoginForm : public QDialog
 {

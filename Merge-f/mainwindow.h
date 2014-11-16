@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QLineEdit>
+#include <unistd.h>
 
 #include "recdia.h"
 #include "regdia.h"

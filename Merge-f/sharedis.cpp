@@ -1,5 +1,5 @@
 #include "sharedis.h"
-
+#include <iostream>
 shareDis::shareDis(QWidget *parent,int seed)
     : QDialog(parent,Qt::FramelessWindowHint)
 {
@@ -75,11 +75,36 @@ shareDis::~shareDis()
 
 void shareDis::setSeed(int seed)
 {
+    QFile file("assetT");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Truncate)) {
+        // error processing here
+        QMessageBox::warning(this, tr("Warning"),tr("File Reading error"),QMessageBox::Ok);
+        return;
+
+    }
+    QTextStream ts(&file);
+    QString regTime;
+    regTime=ts.readAll();
+    std::stringstream ossT(std::stringstream::out|std::stringstream::in);
+    ossT<<regTime.toStdString();
+    time_t rTime;
+    ossT>>rTime;
+    int timeD=(time(NULL)-rTime)/120;
+
     std::ostringstream oss;
     oss<<seed;
     std::string setToSeed;
     setToSeed=oss.str();
     QRCode->setQRData(tr(setToSeed.c_str()));
+
+    std::ostringstream ossC;
+
+    ossC<<timeD;
+    setToSeed+=ossC.str();
+
+    std::istringstream iss(setToSeed);
+    iss>>seed;
+    std::cout<<seed<<endl;
     p.setKey(seed);
 
 }

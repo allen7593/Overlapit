@@ -13,6 +13,8 @@
 #include <sstream>
 #include <cstdlib>
 #include <QMessageBox>
+#include <QFile>
+#include <QTextStream>
 #include "picgen.h"
 #include "widget.h"
 
