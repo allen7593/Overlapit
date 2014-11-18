@@ -20,30 +20,13 @@ int main(int argc, char *argv[])
 
     w->setStyleSheet(stylesheet);
     setCenterOfApplication(w);
-    w->show();
-//    //a.exec();
-//    while(true)
-//    {
-//        switch(w->getStatus())
-//        {
-//            case 0:
-//                a.exec();
+    if (0==access("assetmc", 0) && 0!=access("asset1", 0))
+    {
 
-//                break;
-//            case 1:
-//                w->hide();
-//                delete w;
-//                w=new MainWindow;
-//                w->show();
-//                w->setStyleSheet(stylesheet);
-//                setCenterOfApplication(w);
-//                w->setStatus(0);
-//                break;
-//            case 2:
-//            return 0;
-//                break;
-//        }
-//    }
+        w->hide();
+    }
+    else
+        w->show();
 
     return a.exec();
 }

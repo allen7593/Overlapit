@@ -1,10 +1,11 @@
 #include "loginform.h"
 
-LoginForm::LoginForm(QMainWindow *parent)
+LoginForm::LoginForm(QMainWindow *parent,QString accName)
     : QDialog(parent,Qt::FramelessWindowHint)
 {
 
-    homePath="/home/allen7593";
+    this->accName=accName;
+    //homePath="/home/allen7593";
     restoreBut = new QPushButton(tr("Restore the program"));
     newDevice = new QPushButton(tr("Change to a new deveice"));
     resetPass = new QPushButton(tr("Reset password"));
@@ -83,8 +84,8 @@ void LoginForm::backToPre()
 void LoginForm::turnOn()
 {
     std::string absPatho,absPathf;
-    absPatho=homePath+"/Overlapit/on";
-    absPathf=homePath+"/Overlapit/off";
+    absPatho="on";
+    absPathf="off";
 
     if(0==access(absPatho.c_str(), 0))
     {
@@ -115,8 +116,8 @@ void LoginForm::turnOn()
 void LoginForm::turnOff()
 {
     std::string absPatho,absPathf;
-    absPatho=homePath+"/Overlapit/on";
-    absPathf=homePath+"/Overlapit/off";
+    absPatho="on";
+    absPathf="off";
 
 
     if(0==access(absPathf.c_str(), 0))
@@ -145,7 +146,10 @@ void LoginForm::turnOff()
 
 void LoginForm::resetPassword()
 {
-
+    remove("asset1");
+    regDia* r=new regDia(this,accName);
+    this->hide();
+    r->show();
 }
 
 void LoginForm::resetPic()

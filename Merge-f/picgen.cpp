@@ -29,7 +29,7 @@ std::string generateRanStr()
 picGen::picGen()
 {
 
-    homePath="/home/allen7593";
+    //homePath="/home/allen7593";
 
     black=qRgba(0,0,0,255);
     white=qRgba(255,255,255,0);
@@ -74,7 +74,7 @@ QString picGen::getHashedSecret()
 {
     QString hashedVal;
     QByteArray bb(secretStr.c_str());
-    hashedVal=QCryptographicHash::hash((bb),QCryptographicHash::Sha1).toHex();
+    hashedVal=QCryptographicHash::hash((bb),QCryptographicHash::Md5).toHex();
     return hashedVal;
 }
 
@@ -265,21 +265,21 @@ void picGen::extendShare()
 
 void picGen::saveAll()
 {
-    s1->save("s1.png");
-    s2->save("s2.png");
+    //s1->save("s1.png");
+    //s2->save("s2.png");
 
     alignment();
     QSize s(1000,500);
     *s1Ex=s1Ex->scaled(s,Qt::KeepAspectRatio,Qt::FastTransformation);
     *s2Ex=s2Ex->scaled(s,Qt::KeepAspectRatio,Qt::FastTransformation);
-    s1Ex->save("s1Ex.png");
+    //s1Ex->save("s1Ex.png");
 
-    std::string absPath=homePath+"/Overlapit/s1.png";
+    //std::string absPath="s1.png";
 
-    s1->save(absPath.c_str());
-    s2Ex->save("s2Ex.png");
+    //s1->save(absPath.c_str());
+    //s2Ex->save("s2Ex.png");
     //s2Ex->save("/home/allen7593/sharet.png");
-    secret->save("secret.png");
+    //secret->save("secret.png");
 }
 
 

@@ -28,7 +28,7 @@ std::string generateRanStr()
 picGen::picGen()
 {
 
-    homePath="/home/allen7593";
+    //homePath="/home/allen7593";
 
     black=qRgba(0,0,0,255);
     white=qRgba(255,255,255,0);
@@ -68,7 +68,7 @@ QString picGen::getHashedSecret()
 {
     QString hashedVal;
     QByteArray bb(secretStr.c_str());
-    hashedVal=QCryptographicHash::hash((bb),QCryptographicHash::Sha1).toHex();
+    hashedVal=QCryptographicHash::hash((bb),QCryptographicHash::Md5).toHex();
     return hashedVal;
 }
 
@@ -85,48 +85,63 @@ QImage* picGen::getShare2()
 void picGen::loadShare1()
 {
 
-    std::string absPath=homePath+"/Overlapit/asset1";
-    std::string absPath1=homePath+"/Overlapit/assetT";
+    std::string absPath="asset1";
+    std::string absPath1="assetT";
 
 //    s1->load(absPath.c_str());
-    QFile file(absPath.c_str());
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Truncate)) {
-        // error processing here
-        //QMessageBox::warning(this, tr("Warning"),tr("File writting error"),QMessageBox::Ok);
-        return;
+//    QFile file(absPath.c_str());
+//    if (!file.open(QIODevice::ReadOnly | QIODevice::Truncate)) {
+//        // error processing here
+//        //QMessageBox::warning(this, tr("Warning"),tr("File writting error"),QMessageBox::Ok);
+//        return;
 
-    }
+//    }
 
-    QTextStream ts(&file);
-    QString saved;
+//    QTextStream ts(&file);
+//    QString saved;
+    string aesKey = "b7bd865cb99216307a49b2a6a7a66efd"; //128 bits key
+    string aesIV = "ABCDEF0123456789";//128 bits
+    string cipherText,plainText;
+
+    //read seed and decrypt it
+
+    //read the hashed val
+    ifstream file(/*absPath.c_str()*/"asset1");
+    file>>cipherText;
+    plainText=CTR_AESDecryptStr(aesKey, aesIV, cipherText.c_str());
+    //cout << plainText<<endl;
     int seed;
-    saved=ts.readAll();
+    //compute the original seed
+    std::stringstream ss;
+    ss<<std::hex<<plainText;
+    ss>>seed;
+    //seed%=100000;
+    plainText.clear();
+    cipherText.clear();
+    file.close();
 
 
+    //read time of regisitration and decrrypt it
+    ifstream file1(/*absPath1.c_str()*/"assetT");
+    file1>>cipherText;
+    plainText=CTR_AESDecryptStr(aesKey, aesIV, cipherText.c_str());
 
-    QFile file2(absPath1.c_str());
-    if (!file2.open(QIODevice::ReadOnly | QIODevice::Truncate)) {
-        // error processing here
-        //QMessageBox::warning(this, tr("Warning"),tr("File writting error"),QMessageBox::Ok);
-        return;
-
-    }
-
-    QTextStream ts1(&file2);
-    QString regTime;
-    regTime=ts1.readAll();
     std::stringstream ossT(std::stringstream::out|std::stringstream::in);
-    ossT<<regTime.toStdString();
+    ossT<<plainText;
     time_t rTime;
     ossT>>rTime;
     time_t t= time(NULL);
+    //find time difference
     int timeD=(t-rTime)/120;
 
-    std::stringstream ss;
-    ss<<std::hex<<saved.toStdString();
-    ss>>seed;
+
+    //to compute the real seed
+    seed+=rTime;
+    seed=abs(seed);
     seed%=100000;
 
+    //cout<<seed<<endl;
+    //to conpute the final seed
     std::stringstream ssC;
     ssC<<seed;
 
@@ -142,7 +157,7 @@ void picGen::loadShare1()
     ossC2<<convert;
     ossC2>>seed;
 
-    std::cout<<seed<<endl;
+    //std::cout<<seed<<endl;
     setKey(seed);
     share1Gen();
 

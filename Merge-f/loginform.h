@@ -11,13 +11,14 @@
 #include <QMessageBox>
 #include <iostream>
 #include <unistd.h>
+#include "regdia.h"
 
 class LoginForm : public QDialog
 {
     Q_OBJECT
 
 public:
-    LoginForm(QMainWindow *parent = 0);
+    LoginForm(QMainWindow *parent = 0,QString accName="");
     ~LoginForm();
 
 private slots:
@@ -44,7 +45,7 @@ private:
     QHBoxLayout* infoLayout;
 
     QMainWindow* preWin;
-
+    QString accName;
     std::string homePath;
 
 };

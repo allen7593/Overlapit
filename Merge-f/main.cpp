@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QFile>
 #include <QTextStream>
+#include "settocenter.h"
 
 
 int main(int argc, char *argv[])
@@ -15,7 +16,8 @@ int main(int argc, char *argv[])
     QString stylesheet=filetext.readAll();
 
     w.setStyleSheet(stylesheet);
-
+    setToCenter c;
+    c.centerTheWin(&w);
 
     return a.exec();
 }

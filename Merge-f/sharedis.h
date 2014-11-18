@@ -15,26 +15,34 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QTextStream>
+#include <fstream>
+#include <QTimer>
+#include <QDateTime>
+#include <ctime>
 #include "picgen.h"
 #include "widget.h"
+#include "aes_ctr.h"
 
 class shareDis : public QDialog
 {
     Q_OBJECT
 
 public:
-    shareDis(QWidget *parent = 0,int seed = 0);
+    shareDis(QWidget *parent = 0,QString hasedSeed=0);
     ~shareDis();
     void setSeed(int);
 private slots:
     void goback();
     void validateBut(const QString&);
     void checkForValidity();
+    void countDown();
 private:
 
     QLabel* scanLabel;
     QLabel* QRLabel;
     QLabel* share2;
+    QLabel* timeLabel;
+    QLabel* timeWarning;
     QImage* s2;
 
     QLineEdit* verifyEdit;
@@ -49,6 +57,11 @@ private:
 
     picGen p;
     QWidget* preWin;
+    QString hexSeed;
+    int seed;
+    QTime time;
+    int timeCount;
+    QTimer *timer;
 };
 
 #endif // SHAREDIS_H

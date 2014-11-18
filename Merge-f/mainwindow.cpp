@@ -165,26 +165,35 @@ void MainWindow::showLogin()
     if(access("asset1", 0)==0)
     {
 
-        QFile file("asset1");
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Truncate)) {
-            // error processing here
-            QMessageBox::warning(this, tr("Warning"),tr("File Reading error"),QMessageBox::Ok);
-            return;
+//        QFile file("asset1");
+//        if (!file.open(QIODevice::ReadOnly | QIODevice::Truncate)) {
+//            // error processing here
+//            QMessageBox::warning(this, tr("Warning"),tr("File Reading error"),QMessageBox::Ok);
+//            return;
 
-        }
+//        }
 
 
-        QTextStream ts(&file);
+//        QTextStream ts(&file);
         QByteArray aa;
-        QString bb;
-        bb=ts.readAll();
+//        QString bb;
+//        bb=ts.readAll();
+
+        string aesKey = "b7bd865cb99216307a49b2a6a7a66efd"; //128 bits key
+        string aesIV = "ABCDEF0123456789";//128 bits
+        string cipherText,plainText;
+
+        ifstream file("asset1");
+        file>>cipherText;
+        plainText=CTR_AESDecryptStr(aesKey, aesIV, cipherText.c_str());
+
         aa.append(usrNameEdit->text());
         aa.append(passWordEdit->text());
-        QString hased=QCryptographicHash::hash((aa),QCryptographicHash::Sha1).toHex();
-        if(hased==bb)
+        QString hased=QCryptographicHash::hash((aa),QCryptographicHash::Md5).toHex();
+        if(hased.toStdString()==plainText)
         {
             this->hide();
-            lDia = new LoginForm(this);
+            lDia = new LoginForm(this,usrNameEdit->text());
             lDia->show();
         }
         else

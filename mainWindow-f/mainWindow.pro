@@ -16,10 +16,16 @@ CONFIG +=c++11
 SOURCES += main.cpp\
         mainwindow.cpp \
     picgen.cpp \
-    rangen.cpp
+    rangen.cpp \
+    aes_ctr.cpp \
+    recdia.cpp
 
 HEADERS  += mainwindow.h \
     picgen.h \
-    rangen.h
+    rangen.h \
+    aes_ctr.h \
+    recdia.h
 
 FORMS    +=
+
+LIBS += -lcryptopp

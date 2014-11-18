@@ -72,22 +72,32 @@ void recDia::recovery()
     if (0==access("assetmc", 0) && 0==access("asset1", 0))
     {
 
-        QFile file("assetmc");
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Truncate)) {
-            // error processing here
-            QMessageBox::warning(this, tr("Warning"),tr("File Reading error"),QMessageBox::Ok);
-            return;
+//        QFile file("assetmc");
+//        if (!file.open(QIODevice::ReadOnly | QIODevice::Truncate)) {
+//            // error processing here
+//            QMessageBox::warning(this, tr("Warning"),tr("File Reading error"),QMessageBox::Ok);
+//            return;
 
-        }
-        QTextStream ts(&file);
-        masterKey =ts.readAll();
+//        }
+//        QTextStream ts(&file);
+//        masterKey =ts.readAll();
 
-        if(recoveyEdit->text()==masterKey)
+        string aesKey = "b7bd865cb99216307a49b2a6a7a66efd"; //128 bits key
+        string aesIV = "ABCDEF0123456789";//128 bits
+        string cipherText,plainText;
+
+        ifstream file("assetmc");
+        file>>cipherText;
+        plainText=CTR_AESDecryptStr(aesKey, aesIV, cipherText.c_str());
+
+        if(recoveyEdit->text().toStdString()==plainText)
         {
             file.close();
             //clear the system
             remove("assetmc");
             remove("asset1");
+            remove("assetT");
+            remove("off");
             remove("on");
             //system("rm assetmc asset1");
             QMessageBox::StandardButton rel;
